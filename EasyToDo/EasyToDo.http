@@ -1,0 +1,6 @@
+@EasyToDo_HostAddress = http://localhost:5283
+
+GET {{EasyToDo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
