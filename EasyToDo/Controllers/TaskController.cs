@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-
+using EasyToDo.Services;
 namespace EasyToDo.Controllers;
 
 [ApiController]
@@ -9,11 +9,17 @@ public class TaskController : ControllerBase
 {
     private static List<TaskItem> _tasks = new List<TaskItem>();
     private static int idCounter = 0;
+    private Database _db;
+    
+    public TaskController(Database database)
+    {
+        _db = database;
+    }
     
     [HttpGet ("all")]
     public List<TaskItem> Get()
     {
-        return _tasks;
+        return _db.GetTasks();
     }
     
     [HttpPost]
@@ -22,35 +28,18 @@ public class TaskController : ControllerBase
         int Id = idCounter + 1;
         idCounter += 1;
         task.Id = Id;
-        _tasks.Add(task);
-
-        return Id;
+        return _db.InsertTask(task);
     }
     
     [HttpDelete ("{Id}")]
     public void Delete(int Id)
     {
-        foreach (var task in _tasks)
-        {
-            if (task.Id == Id)
-            {
-                _tasks.Remove(task);
-                break;
-            }
-        }
+        _db.DeleteTask(Id); 
     }
-    
-    [HttpPut ("{Id}")]
+
+    [HttpPut("{Id}")]
     public void Update(int Id, TaskItem newTask)
     {
-        for (int i = 0; i < _tasks.Count; i++)
-        {
-            if (_tasks[i].Id == Id)
-            {
-                newTask.Id = Id;    
-                _tasks[i] = newTask;
-                break;
-            }
-        }
+        _db.UpdateTask(Id, newTask);
     }
 }

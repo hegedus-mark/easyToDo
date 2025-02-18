@@ -1,4 +1,5 @@
 using EasyToDo;
+using EasyToDo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// add the database
+builder.Services.AddSingleton<Database>(provider =>
+    new Database(builder.Configuration));
 
 var app = builder.Build();
 
