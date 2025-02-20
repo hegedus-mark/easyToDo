@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using EasyToDo.Services;
+using EasyToDo.Models;
+using EasyToDo.Data;
+using Microsoft.EntityFrameworkCore;
 namespace EasyToDo.Controllers;
 
 [ApiController]
@@ -8,38 +10,41 @@ public class TaskController : ControllerBase
 
 {
     private static List<TaskItem> _tasks = new List<TaskItem>();
-    private static int idCounter = 0;
-    private Database _db;
+    private AppDbContext _database;
     
-    public TaskController(Database database)
+    public TaskController(AppDbContext database)
     {
-        _db = database;
+        _database = database;
     }
     
     [HttpGet ("all")]
     public List<TaskItem> Get()
     {
-        return _db.GetTasks();
+        return _database.tasks.ToList();
     }
     
     [HttpPost]
-    public int Post(TaskItem task)
+    public void Post(TaskItem task)
     {
-        int Id = idCounter + 1;
-        idCounter += 1;
-        task.Id = Id;
-        return _db.InsertTask(task);
+        _database.tasks.Add(task);
+        _database.SaveChanges();
     }
     
     [HttpDelete ("{Id}")]
     public void Delete(int Id)
     {
-        _db.DeleteTask(Id); 
+        _database.tasks.Where(task => task.id == Id).ExecuteDelete();
     }
 
     [HttpPut("{Id}")]
     public void Update(int Id, TaskItem newTask)
     {
-        _db.UpdateTask(Id, newTask);
+        _database.tasks.Where(task => task.id == Id).
+        ExecuteUpdate(setters => setters.SetProperty(task => task.id, newTask.id)
+                                        .SetProperty(task => task.name, newTask.name)
+                                        .SetProperty(task => task.description, newTask.description)
+                                        .SetProperty(task => task.status, newTask.status)
+                                        .SetProperty(task => task.date, newTask.date)
+        );
     }
 }

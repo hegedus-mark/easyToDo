@@ -1,5 +1,7 @@
+using System.Data.Common;
 using EasyToDo;
-using EasyToDo.Services;
+using EasyToDo.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +13,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // add the database
-builder.Services.AddSingleton<Database>(provider =>
-    new Database(builder.Configuration));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found.");
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString)
+);
 
 var app = builder.Build();
 
