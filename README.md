@@ -1,2 +1,2 @@
 # easyToDo
-A simple to do app in asp.net and angular
+A simple to do app in ASP.NET Core and Angular
